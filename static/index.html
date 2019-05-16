@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <base href="/">
+    <title>Direct Reader</title>
+    <script src="direct-reader-client.js"></script>
+    <script>
+      window.onload = function () {
+        getDBstatus(displayData=false) ;
+        getInstanceNum() ;
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Direct Reader</h1>
+    <p>Current DB status: <span id="dbstatus"></span></p>
+    <p>You must kick off <a href="setup.html">Setup</a> before
+    instances will connect to a database.</p>
+    <p>Select which instance to view:</p>
+    <table id="dataTable" border=1>
+      <form action="show-table.html" method="get">
+      <tr>
+        <td>App GUID: <input type="text" name="appGUID" /></td></tr>
+      <tr>
+        <td>Instance: <input type="text" name="instance" /></td></tr>
+      <tr>
+        <td><button type="submit">View</button></td></tr>
+      </form>
+    </table>
+  </body>
+</html>

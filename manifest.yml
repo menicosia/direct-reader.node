@@ -1,0 +1,8 @@
+---
+applications:
+- name: direct-reader
+  buildpack: nodejs_buildpack
+  memory: 128M
+  services:
+  - demoDB
+

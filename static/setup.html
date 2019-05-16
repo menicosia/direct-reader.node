@@ -1,0 +1,36 @@
+<html>
+  <head>
+    <base href="/">
+    <title>Direct Reader Setup</title>
+    <script src="direct-reader-client.js"></script>
+    <script>
+      window.onload = function () {
+        getDBstatus(displayData=false) ;
+        getInstanceNum() ;
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Direct Reader Setup</h1>
+    <p>Instance Number: <span id="instanceNum"></span></p>
+    <p>Current DB status: <span id="dbstatus"></span></p>
+    <p>Use this page to kick off this instance's connection to a
+      database. This can also be accessed via curl using
+      the <i>useDB</i> endpoint.</p>
+    <p>Example:<br>
+       <code>curl
+       "http://direct-read.apps.lightsilver.cf-app.com/useDB?IP=10.0.4.12&DB=cf_405e7920_9e22_466c_ac56_536dae4dd4a6&user=EDbUGzVtQ0m93JZw&password=REDACTED"
+       -H "X-CF-APP-INSTANCE":"446fbd81-363b-4cb6-a039-78ac24d208db:0"</code></p>
+    <table id="dataTable" border=0>
+        <form action="useDB" method="get">
+          <tr><th>IP</th><th>DB</th><th>User</th><th>Password</th></tr>
+          <tr>
+            <td><input type="text" name="IP" /></td>
+            <td><input type="text" name="DB" /></td>
+            <td><input type="text" name="user" /></td>
+            <td><input type="password" name="password" /></td>
+            <td><button type="submit">Connect DB</button></td></tr>
+        </form>
+    </table>
+  </body>
+</html>

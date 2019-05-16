@@ -1,0 +1,14 @@
+---
+applications:
+- name: direct-reader
+  buildpack: nodejs_buildpack
+  memory: 128M
+  services:
+    p-mysql:
+    - name: local-docker
+      credentials:
+        hostname: 192.168.86.227
+        name: service_instance_db
+        password: nobozo
+        username: marco
+        port: 3306
