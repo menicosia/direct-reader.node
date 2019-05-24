@@ -2,29 +2,31 @@
   <head>
     <base href="/">
     <title>Direct Reader</title>
+    <link rel="stylesheet" href="tables.css">
     <script src="direct-reader-client.js"></script>
     <script>
       window.onload = function () {
-        getDBstatus(displayData=false) ;
-        getInstanceNum() ;
+          getAppGUID() ;
+          getInstanceNum() ;
+          setInterval(function () {
+              getDBstatus(displayData=true)
+          }, 2000) ;
       }
     </script>
   </head>
   <body>
     <h1>Direct Reader</h1>
-    <p>Current DB status: <span id="dbstatus"></span></p>
-    <p>You must kick off <a href="setup.html">Setup</a> before
-    instances will connect to a database.</p>
-    <p>Select which instance to view:</p>
-    <table id="dataTable" border=1>
-      <form action="show-table.html" method="get">
+    <p>Showing view of <span id="appGUID"></span>:<span id="instanceNum"></span></p>
+    <table id="dataTable" border=0>
+      <tr><th>Key</th><th>Value</th></tr>
       <tr>
-        <td>App GUID: <input type="text" name="appGUID" /></td></tr>
+        <form action="write" method="get">
+          <td><input type="text" name="key" /></td>
+          <td><button type="submit">Add key</button></td></tr>
+      <tbody id="dataBody">
+      </tbody>
       <tr>
-        <td>Instance: <input type="text" name="instance" /></td></tr>
-      <tr>
-        <td><button type="submit">View</button></td></tr>
-      </form>
+        <td>Current DB status:</td><td><span id="dbstatus"></span></td></tr>
     </table>
   </body>
 </html>

@@ -26,15 +26,36 @@ function getDBstatus(displayData, instance) {
             if (displayData) { getCurrentData() ; }
         }
     } ;
-    console.log("Requestion DB status from: " + JSON.stringify(instance)) ;
+    console.log("Requesting DB status...") ;
     request.open("GET", url) ;
-    request.setRequestHeader("X-CF-APP-INSTANCE", instance) ;
     request.send(null) ;
 }
 
 function displayDBstatus() {
     var span = document.getElementById("dbstatus") ;
-    span.innerHTML = dbStatus ;
+    if (dbStatus) {
+        span.innerHTML = "<img src='icons/greenball.gif'>"
+    } else {
+        span.innerHTML = "<img src='icons/redball.gif'>" ;
+    }
+}
+
+function getAppGUID() {
+    var url = document.baseURI + "json/appGUID" ;
+    var request = new XMLHttpRequest() ;
+    request.onload = function () {
+        if (200 == request.status) {
+            appGUID = JSON.parse(request.responseText) ;
+            displayAppGUID(appGUID) ;
+        }
+    }
+    request.open("GET", url) ;
+    request.send(null) ;
+}
+
+function displayAppGUID(guid) {
+    console.log("Got app GUID: " + guid) ;
+    document.getElementById("appGUID").innerHTML = guid ;
 }
 
 function getInstanceNum() {
@@ -43,8 +64,8 @@ function getInstanceNum() {
         var request = new XMLHttpRequest() ;
         request.onload = function () {
             if (200 == request.status) {
-                instanceNum = request.responseText ;
-                displayInstanceNum() ;
+                instanceNum = JSON.parse(request.responseText) ;
+                displayInstanceNum(instanceNum) ;
             }
         }
         request.open("GET", url) ;
@@ -54,9 +75,9 @@ function getInstanceNum() {
     }
 }
 
-function displayInstanceNum() {
-    var iNumSpan = document.getElementById("instanceNum") ;
-    iNumSpan.innerHTML = instanceNum ;
+function displayInstanceNum(instanceNum) {
+    console.log("Got instance num #" + instanceNum + "\n") ;
+    document.getElementById("instanceNum").innerHTML = instanceNum ;
 }
 
 function getCurrentData() {

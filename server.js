@@ -26,31 +26,8 @@ var dbConnectState = Boolean(false) ;
 var dbConnectTimer = undefined ;
 
 // Setup based on Environment Variables
-if (process.env.VCAP_SERVICES) {
-    vcap_services = JSON.parse(process.env.VCAP_SERVICES) ;
-    if (vcap_services['p.mysql']) {
-        mysql_data_service = "p.mysql" ;
-    }
-    if (vcap_services["p-mysql"]) {
-        mysql_data_service = "p-mysql" ;
-    }
-    if (mysql_data_service) {
-        mysql_creds["host"] = vcap_services[mysql_data_service][0]["credentials"]["hostname"] ;
-        mysql_creds["user"] = vcap_services[mysql_data_service][0]["credentials"]["username"] ;
-        mysql_creds["password"] = vcap_services[mysql_data_service][0]["credentials"]["password"] ;
-        mysql_creds["port"] = 3306 ;
-        mysql_creds["database"] = "service_instance_db" ;
-        // mysql_creds["port"] = vcap_services[mysql_data_service][0]["credentials"]["port"] ;
-        // mysql_creds["database"] = vcap_services[mysql_data_service][0]["credentials"]["name"] ;
-        if (vcap_services[mysql_data_service][0]["credentials"]["tls"]) {
-            mysql_creds["ca_certificate"] = vcap_services[mysql_data_service][0]["credentials"]["tls"]["cert"]["ca"];
-        } else {
-            mysql_creds["ca_certificate"] = undefined ;
-        }
-        pm_uri = vcap_services[mysql_data_service][0]["credentials"]["uri"] ;
-        util.log("Got access credentials to " + mysql_data_service + " database") ;
-        activateState="mysql" ;
-    }
+if ("VCAP_SERVICES" in process.env) {
+    console.error("Detected service bindings -- ignoring.") ;
 }
 
 if (process.env.VCAP_APP_PORT) { var port = process.env.VCAP_APP_PORT ;}
@@ -144,6 +121,7 @@ function doStatus(request, response) {
 
 function MySQLConnect(response) {
     if (activateState) {
+        console.log("Connecting to: " + mysql_creds["host"]) ;
         clientConfig = {
             host : mysql_creds["host"],
             user : mysql_creds["user"],
@@ -219,10 +197,12 @@ function dispatchApi(request, response, method, query) {
     console.log("... " + method) ;
     switch (method) {
     case "dbstatus":
-        if (dbConnectState) {
-            doStatus(request, response) ;
+        if (! activateState) {
+            response.end(JSON.stringify(Boolean(false))) ;
+        } else if (! dbConnectState) {
+            response.end(JSON.stringify(Boolean(false))) ;
         } else {
-            response.end(JSON.stringify(false)) ;
+            doStatus(request, response) ;
         }
         break ;
     case "read":
@@ -236,6 +216,9 @@ function dispatchApi(request, response, method, query) {
         break ;
     case 'instanceNum':
         response.end(JSON.stringify(myIndex)) ;
+        break ;
+    case 'appGUID':
+        response.end(JSON.stringify(process.env["INSTANCE_GUID"])) ;
         break ;
     default:
         response.writeHead(404) ;
@@ -269,10 +252,13 @@ function requestHandler(request, response) {
         return(true) ;
         break ;
     case "dbstatus":
-        if (dbConnectState) {
+        if (! activateState) {
+            data += "Not configured to use a database; see instructions for details.\n" ;
+            response.end(data) ;
+        } else if (dbConnectState) {
             doStatus(request, response) ;
         } else {
-            data += "I'm sorry, Dave, I can't do that. No connection to database." ;
+            data += "I'm sorry, Dave, I can't do that. No connection to database.\n" ;
             response.end(data) ;
         }
         break ;
@@ -280,7 +266,7 @@ function requestHandler(request, response) {
         if (dbConnectState) {
             doPing(request, response) ;
         } else {
-            data += "I'm sorry, Dave, I can't do that. No connection to database." ;
+            data += "I'm sorry, Dave, I can't do that. No connection to database.\n" ;
             response.end(data) ;
         }
         break ;
@@ -295,16 +281,20 @@ function requestHandler(request, response) {
         return(true) ;
         break ;
     case "useDB":
-        if (requestParts["query"]) {
-            console.log("Received DB connection info: " + requestParts["query"]["IP"]) ;
-            mysql_creds["host"] = requestParts["query"]["IP"] ;
-            mysql_creds["database"] = requestParts["query"]["DB"] ;
+        if ("query" in requestParts
+            && "host" in requestParts["query"] && "db" in requestParts["query"]
+            && "user" in requestParts["query"] && "pw" in requestParts["query"]) {
+            console.log("Received DB connection info: " + requestParts["query"]["host"]) ;
+            mysql_creds["host"] = requestParts["query"]["host"] ;
+            mysql_creds["database"] = requestParts["query"]["db"] ;
             mysql_creds["user"] = requestParts["query"]["user"] ;
-            mysql_creds["password"] = requestParts["query"]["password"] ;
+            mysql_creds["password"] = requestParts["query"]["pw"] ;
+            // mysql_creds["port"] = 3306 ;
+            activateState = Boolean(true) ;
             MySQLConnect(response) ;
         } else {
-            response.end("ERROR: Usage: /useDB?key=foo"
-                         + "(request: " + request.url  + ")") ;
+            response.end("ERROR: Usage: /useDB?host=foo&db=bar&user=baz&pw=garply "
+                         + "(request: " + request.url  + ")\n") ;
         }
         return(true) ;
         break ;
