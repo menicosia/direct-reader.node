@@ -1,0 +1,32 @@
+<html>
+  <head>
+    <base href="/">
+    <title>Direct Reader Display</title>
+    <link rel="stylesheet" href="tables.css">
+    <script src="direct-reader-client.js"></script>
+    <script>
+      window.onload = function () {
+          getAppGUID() ;
+          getInstanceNum() ;
+          setInterval(function () {
+              getDBstatus(displayData=true)
+          }, 2000) ;
+      }
+    </script>
+  </head>
+  <body>
+    <h1>Direct Reader</h1>
+    <p>Showing view of <span id="appGUID"></span>:<span id="instanceNum"></span></p>
+    <table id="dataTable" border=0>
+      <tr><th>Key</th><th>Value</th></tr>
+      <tr>
+        <form action="write" method="get">
+          <td><input type="text" name="key" /></td>
+          <td><button type="submit">Add key</button></td></tr>
+      <tbody id="dataBody">
+      </tbody>
+      <tr>
+        <td>Current DB status:</td><td><span id="dbstatus"></span></td></tr>
+    </table>
+  </body>
+</html>
